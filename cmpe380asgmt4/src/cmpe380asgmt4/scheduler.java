@@ -41,12 +41,13 @@ public class scheduler {
 		}
 	}
 	private class project{
-		public int num, start, dur, val;
+		public int num, start, dur, val, end;
 		project(int projectnumber, int starttime, int duration, int value){
 			num=projectnumber;
 			start=starttime;
 			dur=duration;
 			val=value;
+			end=start+duration-1;
 		}
 	}
 	/**
@@ -56,7 +57,7 @@ public class scheduler {
 		System.out.println("Printing all projects for file "+file);
 		System.out.println("Contains "+numproj+ " projects over "+numweeks+" weeks");
 		for (project p :projList){
-			System.out.println("Proj #"+p.num+" starts on week "+p.start+" lasts "+p.dur+" weeks and is worth "+p.val);
+			System.out.println("Proj #"+p.num+" lasts from start of week "+p.start+" until end of week "+p.end+" and is worth "+p.val);
 		}
 		
 	}
