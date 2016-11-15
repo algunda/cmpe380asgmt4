@@ -1,4 +1,6 @@
-File 1The correct project plan will yield 34 and will do the following projects:
+Answers to Lab 4 by Sam Codrington & Aidan Gunda
+File 1
+The correct project plan will yield 34 and will do the following projects:
 Project #2 starts at beginning of week 1 and lasts until week 3
 Project #4 starts at beginning of week 4 and lasts until week 8
 
