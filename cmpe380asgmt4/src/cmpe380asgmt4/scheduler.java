@@ -9,12 +9,12 @@ import java.util.Scanner;
 public class scheduler {
 	private String file;
 	private int numweeks, numproj;
+	private int[][] filledTable;
 	ArrayList<project> projList=new ArrayList<project>();
 	public scheduler(String filename){
 		file=filename;
 		readFile();
-		int[][] filledTable=dynamic();
-		genResult(filledTable);
+		dynamic();
 	}
 	private void readFile(){
 
@@ -22,7 +22,7 @@ public class scheduler {
 			Scanner sc = new Scanner(new File(file));
 			numweeks= sc.nextInt();
 			numproj= sc.nextInt();
-			
+
 			while (sc.hasNextInt()){
 				int projnum= sc.nextInt();
 				int start= sc.nextInt();
@@ -36,7 +36,8 @@ public class scheduler {
 			ex.printStackTrace();
 		} 
 	}
-	private int[][] dynamic(){
+	
+	private void dynamic(){
 		int[][] val=new int [numweeks] [numproj];
 		for (int x=0; x<numweeks; x++) {
 			for(int y=0; y<numproj; y++) {
@@ -53,19 +54,19 @@ public class scheduler {
 						pot=proj.val; //if it starts in week 1, the value before will be 0
 					else 
 						pot=proj.val+val[proj.start-2][numproj-1]; 
-					/*In the previous line we use the start value of the last project because
-					 *that will be the maximum of the week. Otherwise a project with a higher number that 
-					 *finished on that week won't be considered
+					/*In the previous line we use the accumulated value at the last project because
+					 *that will be the maximum of the week. Otherwise a project with a higher number than the current one
+					 *that finished on that week won't be considered
 					 */
 					int prev;
 					if (y==0)							//if it's the first project
 						prev=val[x-1][numproj-1];		//check the last filled value of the last project
 					else	
 						prev=val[x][y-1];
-					
+
 					val[x][y]=max(pot,prev);
 				}
-				
+
 				else {
 					if ((y==0) && (x==0)) 				//if it's the first cell
 						val[x][y]=0;
@@ -76,25 +77,41 @@ public class scheduler {
 				}
 			}
 		}
-		
-		return val;
+
+		filledTable=val;
 	}
-	
-	private void genResult(int[][] val){
-		ArrayList<project> best=new ArrayList<project>();
-		int x=numweeks-1;
-		int y=numproj-1;
-		while (x!=0 && y!=0){
-			if (val[x][y] == val[x][y-1])
-				y--;
-			else {
-				best.add(projList.get(x));
+
+	public String genResult(){
+		ArrayList<project> best = new ArrayList<project>();
+		int x = numweeks-1;		//start at the end of the array
+		int y = numproj-1;
+		int total=filledTable[x][y];
+		while (filledTable[x][y] != 0){
+			if (y==0){
+				x--;
+				y = numproj - 1;
 				
 			}
+			else if (filledTable[x][y] != filledTable[x][y-1]){
+				best.add(projList.get(y));
+				if (projList.get(y).start==1)
+					break;
+				x = projList.get(y).start - 2; //goes to index containing week before start
+				y = numproj - 1;
+			}
+			else
+				y--;
+			
 		}
-		//generate file listing projects
-		
+		//generate message listing projects
+		String msg = "";
+		for (project p : best)
+			msg = p.printMe() + "\n" + msg;
+		msg="The correct project plan will yield " + total + 
+				" and will do the following projects:\n" + msg;
+		return msg;
 	}
+	
 	/**
 	 * returns max of ints a & b
 	 * @return
@@ -106,15 +123,17 @@ public class scheduler {
 
 	private class project{
 		public int num, start, val, end;
+		
 		project(int projectnumber, int starttime, int duration, int value){
-			num=projectnumber;
-			start=starttime;
-			val=value;
-			end=start+duration-1;
+			num = projectnumber;
+			start = starttime;
+			val = value;
+			end = start + duration - 1;
 		}
+		
 		public String printMe(){
 			return "Project #"+num+" starts at beginning of week "+start+ 
-					"and lasting until week "+end;
+					" and lasts until week "+end;
 		}
 	}
 	/**
@@ -126,6 +145,6 @@ public class scheduler {
 		for (project p :projList){
 			System.out.println("Proj #"+p.num+" lasts from start of week "+p.start+" until end of week "+p.end+" and is worth "+p.val);
 		}
-		
+
 	}
 }
